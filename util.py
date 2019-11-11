@@ -4,7 +4,7 @@ import numpy as np
 
 FILE_PATH = "./225537_daily.csv"
 
-def get_data(type = "reg"):
+def get_data(type):
     
     data_df = pd.read_csv(FILE_PATH, index_col=[0])
     
@@ -40,20 +40,19 @@ def get_data(type = "reg"):
     # Average True Range
     data_df['atr_14'] = talib.ATR(data_df['high'].values, data_df['low'].values, data_df['close'].values, timeperiod=14)
 
-    if type == "reg" :
-        # Target
-        data_df['target'] = np.append(data_df['close'][1:].values, [np.nan])
+     # Target
+    data_df['target'] = np.append(data_df['close'][1:].values, [np.nan])
         # Drop Rows With NA Values In Any Column
-        data_df = data_df.dropna(axis=0, how='any')
+    data_df = data_df.dropna(axis=0, how='any')
         
+    if type == "reg" :
+       
         # Popping The Target Column
         target = data_df.pop('target').values
     
-    if type == "class":
-        #### add another column with the class 0 (for downward trajectory) and 1(for positive trajectory)
-        data_df['target'] = np.append(data_df['close'][1:].values, [np.nan])
-        data_df = data_df.dropna(axis=0, how='any')
-        data_df['class'] = np.where((data_df['close'] < data_df['target']),0,1)
+    elif type == "class":
+        print("type = classification")
+        data_df['class'] = np.where((data_df['close'] < data_df['target']),1,0)
 
         data_df.drop('target',axis = 1, inplace = True)
         
