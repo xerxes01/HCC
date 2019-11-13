@@ -1,6 +1,8 @@
 import pandas as pd
-import talib
 import numpy as np
+
+import talib
+import finta
 
 FILE_PATH = "./225537_daily.csv"
 
@@ -40,9 +42,15 @@ def get_data(type):
     # Average True Range
     data_df['atr_14'] = talib.ATR(data_df['high'].values, data_df['low'].values, data_df['close'].values, timeperiod=14)
 
-     # Target
+    # Pivot Points
+    dfpp = finta.PIVOT(data_df[["open","high","low","close","volume"]])
+    dfpp.drop(columns = ['s3','s4', 'r3', 'r4'], inplace = True)
+    pd.concat([data_df, dfpp], axis = 1)
+
+    # Target
     data_df['target'] = np.append(data_df['close'][1:].values, [np.nan])
-        # Drop Rows With NA Values In Any Column
+    
+    # Drop Rows With NA Values In Any Column
     data_df = data_df.dropna(axis=0, how='any')
         
     if type == "reg" :
