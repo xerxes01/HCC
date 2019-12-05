@@ -1,5 +1,3 @@
-print("--------Downlaod process begins------------")
-
 import logging
 from kiteconnect import KiteConnect
 import pandas as pd
@@ -15,7 +13,7 @@ historical_data_limits = {'minute':60, 'hour':365, 'day':2000, '3minute':90, '5m
 
 kite = KiteConnect(api_key= api_key)
 kite.login_url()
-data = kite.generate_session(request_token='Im8RT4xa1gns5tJvAXxCrbQ0DrELH6GE', api_secret=api_secret)
+data = kite.generate_session(request_token='RnI72DtiOAOZEPpIMdeV2nEOXl6qAKkg', api_secret=api_secret)
 kite.set_access_token(data["access_token"])
 
 
@@ -59,8 +57,8 @@ for i in range(760, 1140):
     download_class = HistoricalData(instruments.iloc[i, 0])
     data = pd.DataFrame(download_class.get_max_data())
     # Enter Path Here
-    data.to_csv('your_path_here/{}.csv'
+    data.to_csv('Users/snehadeepguha/Documents/data_store/nse_minutes/{}.csv'
                 .format(instruments.iloc[i, 2]))
     print('-----Done {} : {}-----'.format(i - 759, instruments.iloc[i, 2]))
-    
+
     
