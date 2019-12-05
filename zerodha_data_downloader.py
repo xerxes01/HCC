@@ -2,7 +2,6 @@ import logging
 from kiteconnect import KiteConnect
 import pandas as pd
 
-
 logging.basicConfig(level=logging.WARNING)
 
 
@@ -14,7 +13,7 @@ historical_data_limits = {'minute':60, 'hour':365, 'day':2000, '3minute':90, '5m
 
 kite = KiteConnect(api_key= api_key)
 kite.login_url()
-data = kite.generate_session(request_token='4E2SJCe17TmcL139qz01h2KRnjmLIp3N', api_secret=api_secret)
+data = kite.generate_session(request_token='Im8RT4xa1gns5tJvAXxCrbQ0DrELH6GE', api_secret=api_secret)
 kite.set_access_token(data["access_token"])
 
 
@@ -61,3 +60,5 @@ for i in range(760, 1140):
     data.to_csv('your_path_here/{}.csv'
                 .format(instruments.iloc[i, 2]))
     print('-----Done {} : {}-----'.format(i - 759, instruments.iloc[i, 2]))
+    
+    
