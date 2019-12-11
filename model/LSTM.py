@@ -16,8 +16,8 @@ class LSTM(object):
         self.model = self.create_model()
         self.data_layer = DataLayer()
         self.data = self.data_layer.get_data_with_indicators()
-        self.class_target = self.data_layer.get_classification_targte()
-        self.regression_target = self.data_layer.get_classification_targte()
+        self.class_target = self.data_layer.get_classification_target()
+        self.regression_target = self.data_layer.get_classification_target()
         self.prepared_data = ""
 
     def prepare_data(self):

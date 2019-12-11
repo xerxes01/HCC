@@ -13,8 +13,8 @@ class CNN:
         self.model = self.create_model()
         self.data_layer = DataLayer()
         self.data = self.data_layer.get_data_with_indicators()
-        self.class_target = self.data_layer.get_classification_targte()
-        self.regression_target = self.data_layer.get_classification_targte()
+        self.class_target = self.data_layer.get_classification_target()
+        self.regression_target = self.data_layer.get_classification_target()
         self.prepared_data = ""
 
     def prepare_data(self):
@@ -28,8 +28,8 @@ class CNN:
         x_test, y_test = dataUtil.multivariate_data(self.data.values, self.class_target, train_data_len, None,
                                                     past_history,
                                                     future_target, step, single_step=True)
-        x_train = x_train.reshape(x_train.shape[0], 21, 21, 1)
-        x_test = x_test.reshape(x_test.shape[0], 21, 21, 1)
+        x_train = x_train.reshape(x_train.shape[0], 32, 32, 1)
+        x_test = x_test.reshape(x_test.shape[0], 32, 32, 1)
         return x_train, y_train, x_test, y_test
 
     def create_model(self):

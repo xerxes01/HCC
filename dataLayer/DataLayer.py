@@ -8,7 +8,8 @@ import util.Constants as Constants
 
 class DataLayer:
 
-    def __init__(self, log_ret=True):
+    def __init__(self, log_return=True):
+        self.is_log_return = log_return
         self.__data_source = DataSource()
         self.__original_df = self.__data_source.read_data()
         self.__original_df.reset_index(inplace=True)
@@ -16,11 +17,11 @@ class DataLayer:
         print("shape = ", self.__data_with_indicators.shape)
         self.__clean_processed_data()
         print("shape 1 = ", self.__data_with_indicators.shape)
-        if log_ret:
-            self.__create_log_ret()
+        if log_return:
+            self._create_log_ret()
         self.__data_with_indicators = data_util.normalise_data(self.__data_with_indicators)
-        #self.__regression_target = self.__create_regression_data()
-        #self.__classification_target = self.__create_classification_data()
+        self.__regression_target = self.__create_regression_data()
+        self.__classification_target = self.__create_classification_data()
 
     def __create_data_with_indicators(self):
         indicators = StatsIndicators.get_all_indicators(self.__original_df)
@@ -33,7 +34,7 @@ class DataLayer:
     def __clean_processed_data(self):
         self.__data_with_indicators = self.__data_with_indicators.dropna(axis=0, how='any')
     
-    def __create_log_ret(self):
+    def _create_log_ret(self):
         self.__data_with_indicators['open_lr'] = np.log(self.__data_with_indicators['open']) - np.log(self.__data_with_indicators['open'].shift(1))
         self.__data_with_indicators['high_lr'] = np.log(self.__data_with_indicators['high']) - np.log(self.__data_with_indicators['high'].shift(1))
         self.__data_with_indicators['low_lr'] = np.log(self.__data_with_indicators['low']) - np.log(self.__data_with_indicators['low'].shift(1))
@@ -59,7 +60,12 @@ class DataLayer:
         :return: regression target, training data with indicators
         """
         print(type(self.__data_with_indicators), self.__data_with_indicators.columns)
-        self.__data_with_indicators['target'] = np.append(self.__data_with_indicators['close'][shift:].values, [np.nan])
+        if self.is_log_return:
+            self.__data_with_indicators['target'] = np.append(self.__data_with_indicators['close_lr'][shift:].values, [np.nan])
+        else:
+            self.__data_with_indicators['target'] = np.append(self.__data_with_indicators['close'][shift:].values,
+                                                              [np.nan])
+
         # Drop Rows With NA Values In Any Column
         self.__data_with_indicators = self.__data_with_indicators.dropna(axis=0, how='any')
         target = self.__data_with_indicators.pop('target').values
@@ -71,11 +77,11 @@ class DataLayer:
         :param shift: Target(Prediction) on the basis of <shift> num of days. For eg. If shift is 1, next day value is predicted
         :return: classification target, training data with indicators
         """
-        self.__data_with_indicators['target'] = np.append(self.__data_with_indicators['close'][shift:].values, [np.nan])
+        self.__data_with_indicators['target'] = np.append(self.__data_with_indicators['close_lr'][shift:].values,
+                                                          [np.nan])
         # Drop Rows With NA Values In Any Column
         self.__data_with_indicators = self.__data_with_indicators.dropna(axis=0, how='any')
-        self.__data_with_indicators['class'] = np.where(
-            (self.__data_with_indicators['close'] < self.__data_with_indicators['target']), 1, 0)
+        self.__data_with_indicators['class'] = np.where(self.__data_with_indicators['close_lr'] > 0, 1, 0)
         self.__data_with_indicators.drop('target', axis=1, inplace=True)
         target = self.__data_with_indicators.pop('class').values
         return target
@@ -111,7 +117,7 @@ class DataLayer:
     def get_regression_target(self):
         return self.__regression_target
 
-    def get_classification_targte(self):
+    def get_classification_target(self):
         return self.__classification_target
 
     def get_raw_data(self):
