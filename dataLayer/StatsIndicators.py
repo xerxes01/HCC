@@ -16,15 +16,16 @@ class StatsIndicators:
                                 StatsIndicators.get_macd(data_df),
                                 StatsIndicators.get_ad_oscillator(data_df),
                                 StatsIndicators.get_commodity_channel_index(data_df),
+                                StatsIndicators.get_fft(data_df),
                                 StatsIndicators.get_average_true_range(data_df)], axis=1, sort=False)
         indicators = indicators[:data_df.shape[0]]
-        indicators['dev_sma_5'] = np.log(indicators['close']) - np.log(indicators['sma_5'])
-        indicators['dev_sma_10'] = np.log(indicators['close']) - np.log(indicators['sma_10'])
-        indicators['dev_ema_20'] = np.log(indicators['close']) - np.log(indicators['ema_20'])
-        indicators['dev_fft_6'] = np.log(indicators['close']) - np.log(indicators['fft_6'])
-        indicators['dev_fft_10'] = np.log(indicators['close']) - np.log(indicators['fft_10'])
-        indicators['dev_fft_20'] = np.log(indicators['close']) - np.log(indicators['fft_20'])
-        indicators['dev_fft_50'] = np.log(indicators['close']) - np.log(indicators['fft_50'])
+        indicators['dev_sma_5'] = np.log(data_df['close']) - np.log(indicators['sma_5'])
+        indicators['dev_sma_10'] = np.log(data_df['close']) - np.log(indicators['sma_10'])
+        indicators['dev_ema_20'] = np.log(data_df['close']) - np.log(indicators['ema_20'])
+        indicators['dev_fft_6'] = np.log(data_df['close']) - np.log(indicators['fft_6'])
+        indicators['dev_fft_10'] = np.log(data_df['close']) - np.log(indicators['fft_10'])
+        indicators['dev_fft_20'] = np.log(data_df['close']) - np.log(indicators['fft_20'])
+        indicators['dev_fft_50'] = np.log(data_df['close']) - np.log(indicators['fft_50'])
         return indicators
 
     @staticmethod
@@ -126,15 +127,15 @@ class StatsIndicators:
     
     @staticmethod
     def get_fft(data_df, time_periods=[6, 10, 20, 50], to_apply='close'):
-        output = pd.DataFrame()
-        close_fft = np.fft.fft(np.asarray(data_df['close'].tolist()))
+        output_df = pd.DataFrame()
+        close_fft = np.fft.fft(np.asarray(data_df[to_apply].tolist()))
         fft_df = pd.DataFrame({'fft':close_fft})
         fft_df['absolute'] = fft_df['fft'].apply(lambda x: np.abs(x))
         fft_df['angle'] = fft_df['fft'].apply(lambda x: np.angle(x))
         for i in time_periods:
             fft_list = np.asarray(fft_df['fft'].tolist())
             fft_list[int(i/2):int(-i/2)] = 0
-            output.loc[:, 'fft_{}'.format(i)] = np.fft.ifft(fft_list).real
+            output_df.loc[:, 'fft_{}'.format(i)] = np.fft.ifft(fft_list).real
         return(output_df)
 
 
