@@ -11,20 +11,20 @@ class DataLayer:
     def __init__(self, log_ret=True):
         self.__data_source = DataSource()
         self.__original_df = self.__data_source.read_data()
+        self.__original_df.reset_index(inplace=True)
         self.__create_data_with_indicators()
         print("shape = ", self.__data_with_indicators.shape)
         self.__clean_processed_data()
         print("shape 1 = ", self.__data_with_indicators.shape)
         if log_ret:
-            self._create_log_ret()
+            self.__create_log_ret()
         self.__data_with_indicators = data_util.normalise_data(self.__data_with_indicators)
-        self.__regression_target = self.__create_regression_data()
-        self.__classification_target = self.__create_classification_data()
+        #self.__regression_target = self.__create_regression_data()
+        #self.__classification_target = self.__create_classification_data()
 
     def __create_data_with_indicators(self):
         indicators = StatsIndicators.get_all_indicators(self.__original_df)
         print('indicators ', indicators.shape, 'type indicator', type(indicators))
-        self.__original_df.reset_index(inplace=True)
         self.__data_with_indicators = pd.concat([self.__original_df, indicators], axis=1, sort=False)
         self.__data_with_indicators.set_index('date', inplace=True)
         self.__original_df.set_index('date', inplace=True)
