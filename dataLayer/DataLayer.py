@@ -18,7 +18,7 @@ class DataLayer:
         self.__clean_processed_data()
         print("shape 1 = ", self.__data_with_indicators.shape)
         if log_return:
-            self._create_log_ret()
+            self.__create_log_ret()
         self.__data_with_indicators = data_util.normalise_data(self.__data_with_indicators)
         self.__regression_target = self.__create_regression_data()
         self.__classification_target = self.__create_classification_data()
@@ -34,7 +34,7 @@ class DataLayer:
     def __clean_processed_data(self):
         self.__data_with_indicators = self.__data_with_indicators.dropna(axis=0, how='any')
     
-    def _create_log_ret(self):
+    def __create_log_ret(self):
         self.__data_with_indicators['open_lr'] = np.log(self.__data_with_indicators['open']) - np.log(self.__data_with_indicators['open'].shift(1))
         self.__data_with_indicators['high_lr'] = np.log(self.__data_with_indicators['high']) - np.log(self.__data_with_indicators['high'].shift(1))
         self.__data_with_indicators['low_lr'] = np.log(self.__data_with_indicators['low']) - np.log(self.__data_with_indicators['low'].shift(1))

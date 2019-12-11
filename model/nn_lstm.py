@@ -10,14 +10,13 @@ from dataLayer.DataLayer import DataLayer
 import util.Constants as Constants
 
 
-class LSTM(object):
+class ModelLSTM(object):
 
     def __init__(self):
         self.data_layer = DataLayer()
         self.data = self.data_layer.get_data_with_indicators()
         self.class_target = self.data_layer.get_classification_target()
         self.regression_target = self.data_layer.get_classification_target()
-        self.prepared_data = ""
 
     def prepare_data(self):
         train_data_len = round(Constants.SPLIT_TRAIN_RATIO * len(self.data))
@@ -39,20 +38,20 @@ class LSTM(object):
         model = Model(inputs=inputs, outputs=preds)
         return(model)
 
-    def compile_model(self):
-        self.model.compile(loss="mae", optimizer=Adam())
+    def compile_model(self, model):
+        model.compile(loss="mae", optimizer=Adam())
 
-    def train_model(self, x_train, y_train, x_test, y_test):
+    def train_model(self, x_train, y_train, x_test, y_test, model):
         print('train model', x_train.shape, y_train.shape)
         batch_size = 32
         epochs = 10
 
-        self.model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, verbose=1,
-                       validation_data=(x_test, y_test))
+        model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, verbose=1,
+                  validation_data=(x_test, y_test))
 
     def run_model(self):
         x_train, y_train, x_test, y_test = self.prepare_data()
-        self.create_model(x_train.shape[-2:])
-        self.compile_model()
+        created_model = self.create_model(x_train.shape[-2:])
+        self.compile_model(created_model)
         print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
-        self.train_model(x_train, y_train, x_test, y_test)
+        self.train_model(x_train, y_train, x_test, y_test, created_model)
