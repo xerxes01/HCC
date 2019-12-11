@@ -1,6 +1,6 @@
 import pandas as pd
 
-FILE_PATH = "..//test.csv"
+FILE_PATH = "./test.csv"
 
 
 class DataSource:
