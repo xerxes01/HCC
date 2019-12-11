@@ -2,12 +2,12 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Conv2D
 from keras.layers import MaxPooling2D, Flatten, Dropout
-import util.DataUtil as data_util
+import util.DataUtil as dataUtil
 from dataLayer.DataLayer import DataLayer
 import util.Constants as Constants
 
 
-class CNN():
+class CNN:
 
     def __init__(self):
         self.model = self.create_model()
@@ -23,11 +23,11 @@ class CNN():
         past_history = 21
         future_target = 1
         step = 1
-        x_train, y_train = data_util.multivariate_data(self.data.values, self.class_target, 0, train_data_len,
-                                                       past_history, future_target, step, single_step=True)
-        x_test, y_test = data_util.multivariate_data(self.data.values, self.class_target, train_data_len, None,
-                                                     past_history,
-                                                     future_target, step, single_step=True)
+        x_train, y_train = dataUtil.multivariate_data(self.data.values, self.class_target, 0, train_data_len,
+                                                      past_history, future_target, step, single_step=True)
+        x_test, y_test = dataUtil.multivariate_data(self.data.values, self.class_target, train_data_len, None,
+                                                    past_history,
+                                                    future_target, step, single_step=True)
         x_train = x_train.reshape(x_train.shape[0], 21, 21, 1)
         x_test = x_test.reshape(x_test.shape[0], 21, 21, 1)
         return x_train, y_train, x_test, y_test

@@ -20,14 +20,12 @@ class DataLayer:
         self.__classification_target = self.__create_classification_data()
 
     def __create_data_with_indicators(self):
-        print('test')
         indicators = StatsIndicators.get_all_indicators(self.__original_df)
         print('indicators ', indicators.shape, 'type indicator', type(indicators))
         self.__original_df.reset_index(inplace=True)
         self.__data_with_indicators = pd.concat([self.__original_df, indicators], axis=1, sort=False)
-        self.__data_with_indicators.set_index('date', inplace = True)
-        self.__original_df.set_index('date', inplace = True)
-
+        self.__data_with_indicators.set_index('date', inplace=True)
+        self.__original_df.set_index('date', inplace=True)
 
     def __clean_processed_data(self):
         self.__data_with_indicators = self.__data_with_indicators.dropna(axis=0, how='any')
