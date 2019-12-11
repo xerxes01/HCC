@@ -8,13 +8,15 @@ import util.Constants as Constants
 
 class DataLayer:
 
-    def __init__(self):
+    def __init__(self, log_ret=True):
         self.__data_source = DataSource()
         self.__original_df = self.__data_source.read_data()
         self.__create_data_with_indicators()
         print("shape = ", self.__data_with_indicators.shape)
         self.__clean_processed_data()
         print("shape 1 = ", self.__data_with_indicators.shape)
+        if log_ret:
+            self._create_log_ret()
         self.__data_with_indicators = data_util.normalise_data(self.__data_with_indicators)
         self.__regression_target = self.__create_regression_data()
         self.__classification_target = self.__create_classification_data()
@@ -27,8 +29,28 @@ class DataLayer:
         self.__data_with_indicators.set_index('date', inplace=True)
         self.__original_df.set_index('date', inplace=True)
 
+    
     def __clean_processed_data(self):
         self.__data_with_indicators = self.__data_with_indicators.dropna(axis=0, how='any')
+    
+    def __create_log_ret(self):
+        self.__data_with_indicators['open_lr'] = np.log(self.__data_with_indicators['open']) - np.log(self.__data_with_indicators['open'].shift(1))
+        self.__data_with_indicators['high_lr'] = np.log(self.__data_with_indicators['high']) - np.log(self.__data_with_indicators['high'].shift(1))
+        self.__data_with_indicators['low_lr'] = np.log(self.__data_with_indicators['low']) - np.log(self.__data_with_indicators['low'].shift(1))
+        self.__data_with_indicators['close_lr'] = np.log(self.__data_with_indicators['close']) - np.log(self.__data_with_indicators['close'].shift(1))
+        self.__data_with_indicators['volume_lr'] = np.log(self.__data_with_indicators['volume']) - np.log(self.__data_with_indicators['volume'].shift(1))
+        self.__data_with_indicators['sma_5_lr'] = np.log(self.__data_with_indicators['sma_5']) - np.log(self.__data_with_indicators['sma_5'].shift(1))
+        self.__data_with_indicators['sma_10_lr'] = np.log(self.__data_with_indicators['sma_10']) - np.log(self.__data_with_indicators['sma_10'].shift(1))
+        self.__data_with_indicators['ema_20_lr'] = np.log(self.__data_with_indicators['ema_20']) - np.log(self.__data_with_indicators['ema_20'].shift(1))
+        self.__data_with_indicators['bband_upper_lr'] = np.log(self.__data_with_indicators['bband_upper']) - np.log(self.__data_with_indicators['bband_upper'].shift(1))
+        self.__data_with_indicators['bband_middle_lr'] = np.log(self.__data_with_indicators['bband_middle']) - np.log(self.__data_with_indicators['bband_middle'].shift(1))
+        self.__data_with_indicators['bband_lower_lr'] = np.log(self.__data_with_indicators['bband_lower']) - np.log(self.__data_with_indicators['bband_lower'].shift(1))
+        self.__data_with_indicators['fft_6_lr'] = np.log(self.__data_with_indicators['fft_6']) - np.log(self.__data_with_indicators['fft_6'].shift(1))
+        self.__data_with_indicators['fft_10_lr'] = np.log(self.__data_with_indicators['fft_10']) - np.log(self.__data_with_indicators['fft_10'].shift(1))
+        self.__data_with_indicators['fft_20_lr'] = np.log(self.__data_with_indicators['fft_20']) - np.log(self.__data_with_indicators['fft_20'].shift(1))
+        self.__data_with_indicators['fft_50_lr'] = np.log(self.__data_with_indicators['fft_50']) - np.log(self.__data_with_indicators['fft_50'].shift(1))
+        self.__data_with_indicators = self.__data_with_indicators.drop(['open', 'high', 'low', 'close', 'volume', 'sma_5', 'sma_10', 'ema_20', 'fft_6', 'fft_10',
+                                                                        'fft_20', 'fft_50'], axis=1).dropna(axis=0, how='any')
 
     def __create_regression_data(self, shift=1):
         """
