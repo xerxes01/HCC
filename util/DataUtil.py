@@ -65,5 +65,5 @@ def multivariate_data(dataset, target, start_index, end_index, history_size, tar
         else:
             labels.append(target[i:i + target_size])
     print("Shape of multivariate data: {}".format(np.array(data).shape))
-    print("Shape of multivariate target: {}".format(np.array(data).shape))
+    print("Shape of multivariate target: {}".format(np.array(labels).shape))
     return (np.array(data), np.array(labels))
