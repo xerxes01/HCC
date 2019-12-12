@@ -12,24 +12,27 @@ def normalise_data(data_frame):
      but sigma and mu will be calculated only on basis of training data
     :return: nd array of normalised data
     """
-    print("df shape", data_frame.shape)
 
     train_split = round(Constants.SPLIT_TRAIN_RATIO * len(data_frame))
     # Normalizing Data
     dataset = data_frame.values
-    print("data", dataset[:5,])
     data_mean = dataset[:train_split].mean(axis=0)
     data_std = dataset[:train_split].std(axis=0)
     dataset = (dataset - data_mean) / data_std
+    print('Shape of the normalised datset: {}'.format(dataset.shape))
     return pd.DataFrame(dataset, index=data_frame.index, columns=data_frame.columns)
 
 
 def split_train_test(data, target, split_train_ratio):
     threshold_point = round(len(data) * split_train_ratio)
     x_train = data[:threshold_point]
+    print("Shape of x_train: {}".format(x_train.shape))
     y_train = data[:threshold_point]
+    print("Shape of x_train: {}".format(x_train.shape))
     x_test = target[threshold_point:]
+    print("Shape of x_train: {}".format(x_train.shape))
     y_test = target[threshold_point:]
+    print("Shape of x_train: {}".format(x_train.shape))
     return x_train, y_train, x_test, y_test
 
 
@@ -61,4 +64,6 @@ def multivariate_data(dataset, target, start_index, end_index, history_size, tar
             labels.append(target[i + target_size])
         else:
             labels.append(target[i:i + target_size])
+    print("Shape of multivariate data: {}".format(data.shape))
+    print("Shape of multivariate target: {}".format(data.shape))
     return (np.array(data), np.array(labels))

@@ -14,23 +14,23 @@ class DataLayer:
         self.__original_df = self.__data_source.read_data()
         self.__original_df.reset_index(inplace=True)
         self.__create_data_with_indicators()
-        print("shape = ", self.__data_with_indicators.shape)
         self.__clean_processed_data()
-        print("shape 1 = ", self.__data_with_indicators.shape)
+        print("Shape after adding all indicators: {}".format(self.__data_with_indicators.shape))
         if log_return:
             self.__create_log_ret()
+        print("Shape after adding LR: {}".format(self.__data_with_indicators.shape))
         self.__data_with_indicators = data_util.normalise_data(self.__data_with_indicators)
         self.__regression_target = self.__create_regression_data()
+        print("Shape of Regression Target: {}".format(self.__regression_target.shape))
         self.__classification_target = self.__create_classification_data()
+        print("Shape of Classification Target: {}".format(self.__classification_target.shape))
 
     def __create_data_with_indicators(self):
         indicators = StatsIndicators.get_all_indicators(self.__original_df)
-        print('indicators ', indicators.shape, 'type indicator', type(indicators))
         self.__data_with_indicators = pd.concat([self.__original_df, indicators], axis=1, sort=False)
         self.__data_with_indicators.set_index('date', inplace=True)
         self.__original_df.set_index('date', inplace=True)
 
-    
     def __clean_processed_data(self):
         self.__data_with_indicators = self.__data_with_indicators.dropna(axis=0, how='any')
     
@@ -59,12 +59,10 @@ class DataLayer:
         :param shift: Target(Prediction) on the basis of <shift> num of days. For eg. If shift is 1, next day value is predicted
         :return: regression target, training data with indicators
         """
-        print(type(self.__data_with_indicators), self.__data_with_indicators.columns)
         if self.is_log_return:
-            self.__data_with_indicators['target'] = np.append(self.__data_with_indicators['close_lr'][shift:].values, [np.nan])
+            self.__data_with_indicators['target'] = np.append(self.__data_with_indicators['close_lr'].values[shift:], [np.nan])
         else:
-            self.__data_with_indicators['target'] = np.append(self.__data_with_indicators['close'][shift:].values,
-                                                              [np.nan])
+            self.__data_with_indicators['target'] = np.append(self.__data_with_indicators['close'].values[shift:], [np.nan])
 
         # Drop Rows With NA Values In Any Column
         self.__data_with_indicators = self.__data_with_indicators.dropna(axis=0, how='any')
@@ -77,12 +75,11 @@ class DataLayer:
         :param shift: Target(Prediction) on the basis of <shift> num of days. For eg. If shift is 1, next day value is predicted
         :return: classification target, training data with indicators
         """
-        self.__data_with_indicators['target'] = np.append(self.__data_with_indicators['close_lr'][shift:].values,
-                                                          [np.nan])
+        self.__data_with_indicators['target'] = np.append(self.__data_with_indicators['close_lr'].values[shift:], [np.nan])
         # Drop Rows With NA Values In Any Column
-        self.__data_with_indicators = self.__data_with_indicators.dropna(axis=0, how='any')
         self.__data_with_indicators['class'] = np.where(self.__data_with_indicators['close_lr'] > 0, 1, 0)
         self.__data_with_indicators.drop('target', axis=1, inplace=True)
+        self.__data_with_indicators = self.__data_with_indicators.dropna(axis=0, how='any')
         target = self.__data_with_indicators.pop('class').values
         return target
 
@@ -98,7 +95,7 @@ class DataLayer:
                                               Constants.SPLIT_TRAIN_RATIO)
         else:
             return data_util.split_train_test(self.__data_with_indicators, self.__create_regression_data(shift),
-                                              self.split_train_ratio)
+                                              Constants.split_train_ratio)
 
     def get_classification_data(self, shift=1):
         """
@@ -112,7 +109,7 @@ class DataLayer:
                                               Constants.SPLIT_TRAIN_RATIO)
         else:
             return data_util.split_train_test(self.__data_with_indicators, self.__create_regression_data(shift),
-                                              self.split_train_ratio)
+                                              Constants.split_train_ratio)
 
     def get_regression_target(self):
         return self.__regression_target
