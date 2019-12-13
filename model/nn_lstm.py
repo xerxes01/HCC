@@ -1,3 +1,5 @@
+import numpy as np
+import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.layers import BatchNormalization, ConvLSTM2D, Dense, Dropout, GRU, Input, LSTM
 from tensorflow.keras.losses import mae
@@ -32,10 +34,11 @@ class ModelLSTM(object):
 
     def create_model(self, shape):
         inputs = Input(shape=shape)
-        out_0 = Dense(1024, activation='tanh')(inputs)
-        out_1 = LSTM(1024, activation='tanh', return_sequences=True)(out_0)
-        out_2 = LSTM(1024, activation='tanh')(out_1)
-        preds = Dense(1, activation='tanh')(out_2)
+        out_0 = LSTM(2048, activation='tanh', return_sequences=True)(inputs)
+        out_1 = LSTM(2048, activation='tanh', return_sequences=True)(out_0)
+        out_2 = Dense(2048, activation='tanh')(out_1)
+        out_3 = LSTM(2048, activation='tanh')(out_2)
+        preds = Dense(1, activation='tanh')(out_3)
         model = Model(inputs=inputs, outputs=preds)
         return(model)
 
@@ -49,6 +52,28 @@ class ModelLSTM(object):
 
         model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, verbose=1,
                   validation_data=(x_test, y_test))
+    
+    def accuracy_metrics(self, model, y_test, x_test):
+        pred_df = pd.DataFrame(columns=['actual', 'predicted'])
+        pred_df['actual'] = y_test
+        pred_df['predicted'] = model.predict(x_test)
+        pred_df['true_positive'] = np.zeros(len(pred_df))
+        pred_df['false_positive'] = np.zeros(len(pred_df))
+        pred_df['true_negative'] = np.zeros(len(pred_df))
+        pred_df['false_negative'] = np.zeros(len(pred_df))
+        for i in range(len(pred_df)):
+            if (pred_df.iloc[i, 0] < 0) and (pred_df.iloc[i, 1] < 0):
+                pred_df.iloc[i, 4] = 1
+            elif (pred_df.iloc[i, 0] > 0) and (pred_df.iloc[i, 1] > 0):
+                pred_df.iloc[i, 2] = 1
+            elif (pred_df.iloc[i, 0] < 0) and (pred_df.iloc[i, 1] > 0):
+                pred_df.iloc[i, 3] = 1
+            elif (pred_df.iloc[i, 0] > 0) and (pred_df.iloc[i, 1] < 0):
+                pred_df.iloc[i, 5] = 1
+        print('The number of true positives is {}'.format(sum(pred_df.loc[:, 'true_positive'])))
+        print('The number of false positives is {}'.format(sum(pred_df.loc[:, 'false_positive'])))
+        print('The number of true negatives is {}'.format(sum(pred_df.loc[:, 'true_negative'])))
+        print('The number of false negatives is {}'.format(sum(pred_df.loc[:, 'false_negative'])))
 
     def run_model(self):
         x_train, y_train, x_test, y_test = self.prepare_data()
@@ -56,3 +81,4 @@ class ModelLSTM(object):
         self.compile_model(created_model)
         print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
         self.train_model(x_train, y_train, x_test, y_test, created_model)
+        self.accuracy_metrics(created_model, y_test, x_test)
